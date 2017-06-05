@@ -1,4 +1,6 @@
 # This program was written by Joshua Cahill to recognise license plate numbers
+# First argument is the location of the directory containing the files WITHOUT a '/' on the end
+# Second argument is a character either 'v' or 'p' determing if this was from a photo or a video, and this just determines the location of the debugging files
 
 from openalpr import Alpr
 import time
@@ -17,11 +19,11 @@ languageList= ['au', 'br', 'fr', 'kr2', 'mx', 'us', 'auwide', 'eu', 'gb', 'kr', 
 
 # change the debug files depending on whether we are using video or photo analyser
 if(str((sys.argv)[2]) == "v"):
-    debug = open('/home/pi/LicensePlateRecognition/videoAnalysis/data/debug.txt', 'w')
-    results = open('/home/pi/LicensePlateRecognition/videoAnalysis/data/results.txt', 'w')
+    debug = open('/home/joshua/repos/alpr/debug/debug.txt', 'w')
+    results = open('/home/joshua/repos/alpr/debug/results.txt', 'w')
 elif(str((sys.argv)[2]) == "p"):
-    debug = open('/home/pi/LicensePlateRecognition/photoAnalysis/data/debug.txt', 'w')
-    results = open('/home/pi/LicensePlateRecognition/photoAnalysis/data/results.txt', 'w')
+    debug = open('/home/joshua/repos/alpr/debug/debug.txt', 'w')
+    results = open('/home/joshua/repos/alpr/debug/results.txt', 'w')
 
 # print the date information to the files
 date = str(time.strftime("%Y-%m-%d"))
@@ -30,7 +32,7 @@ print(str(datetime.now()), file = results)
 
 def main():
 
-    # TO DO assert that we have been given an arguement
+    # TODO assert that we have been given an arguement
     imageDirectory = str((sys.argv)[1])
     print("Image directory is: " + imageDirectory, file = debug)
 
@@ -107,7 +109,7 @@ def get_world_plate(imageLocation, fileName):
                 currentConfidence = candidate['confidence']
                 print(str(currentPlate) + "\t" + str(currentConfidence), file = debug)
 
-                if len(currentPlate) == 6 and currentConfidence > finalPlateConfidence and validPlate(currentPlate):
+                if len(currentPlate) == 6 and currentConfidence > finalPlateConfidence: #and validPlate(currentPlate):
                     finalPlateConfidence = currentConfidence
                     finalPlate = currentPlate
                     selectedLanguage = languageCounter
@@ -142,7 +144,7 @@ def check_plate(licensePlate, countryNum, fileName):
     if licensePlate in invalidPlates:
         return
 
-    # increase the count of successfu locks
+    # increase the count of successfull locks
     languageListSuccess[countryNum] += 1
     
 
