@@ -1,21 +1,32 @@
 #~ /bin/bash
 
-dir=/home/pi/LicensePlateRecognition/photoAnalysis/data
+location=$1
+storage=$2
 
 echo Beginning photo image analysis...
 
-echo Removing directories...
-rm -r $dir/tmp
-
-echo Creating directories...
-mkdir $dir/tmp
-
-# split each picture into smaller pictures and store them in tmp2
+# split each picture into smaller pictures
 echo Splitting picture into fragments...
-convert $1 -crop 3x3@ +repage +adjoin "$dir/tmp/image$counter%02d.jpg"
 
-echo "Calling python script to analyse images for number plates..."
-python3 /home/pi/LicensePlateRecognition/analyse.py "$dir/tmp" "p"
+IMAGES="$location/*.jpg"
+
+echo $storage
+
+for file in $IMAGES
+do
+	filename=$(basename "$file")
+	filename="${filename%.*}"
+	echo $filename
+	for size in 3 4 5
+	do
+		convert $file -crop $size'x'$size@ +repage +adjoin "$storage/$filename-size-$size.jpg"
+		echo $size
+	done
+	echo Converted a picture
+done
+
+#echo "Calling python script to analyse images for number plates..."
+#python3 /home/pi/LicensePlateRecognition/analyse.py "$dir/tmp" "p"
 
 echo Complete
 
