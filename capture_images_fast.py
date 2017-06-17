@@ -6,6 +6,7 @@
 import io
 import time
 import picamera
+import paramiko
 
 with picamera.PiCamera() as camera:
     # Set the camera's resolution to VGA @40fps and give it a couple
@@ -15,21 +16,34 @@ with picamera.PiCamera() as camera:
     camera.framerate = 30
     time.sleep(2)
 
-    print("Beginning program")
+    print("Beginning capture")
     # Set up 40 in-memory streams
-    outputs = [io.BytesIO() for i in range(15)]
+    numPhotos = 15
+    outputs = [io.BytesIO() for i in range(numPhotos)]
     start = time.time()
 
     # using the video port below brings out worse quality
     camera.capture_sequence(outputs, 'jpeg', use_video_port=True)
     finish = time.time()
     # How fast were we?
-    print('Captured x images at %.2ffps' % (40 / (finish - start)))
+    print('Captured ' + str(numPhotos) + ' images at %.2ffps' % (numPhotos / (finish - start)))
+    print('Time was: ' + str(finish-start))
 
+    # create SSH connection
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('192.168.43.132', username='joshua')
+
+
+    
 
     # then send the data over ssh to main computer
+    # PROCESSING TIME IS HUGE IF IT HAS TO REWRITE THE FILES
+    #print("Processing images from buffer")
+    #processingStart = time.time()
+    #for x in range(0, numPhotos -1):
+    #    with open(str(x) +".jpg", "wb") as f:
+    #        f.write(outputs[x].getvalue())
 
-    with open("data.jpg", "wb") as f:
-        f.write(outputs[0].getvalue())
-
-    print("Program complete")
+    #processingEnd = time.time()
+    #print("Processing time was " + str(processingEnd - processingStart))
