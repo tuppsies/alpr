@@ -11,7 +11,7 @@ import paramiko
 with picamera.PiCamera() as camera:
 
     # begin image compressor and transfer program
-    os.system("./compress_pictures.sh &")
+    #os.system("./compress_pictures.sh &")
 
 
     #camera.resolution = (2592, 1944) # works fine for 5 megapixels
@@ -21,14 +21,14 @@ with picamera.PiCamera() as camera:
 
     print("Beginning capture")
     # Set up 40 in-memory streams
-    numPhotos = 100
+    numPhotos = 10
     outputs = [io.BytesIO() for i in range(numPhotos)]
 
 
     start = time.time()
 
     # using the video port below brings out worse quality
-    camera.capture_sequence(outputs, 'jpeg', use_video_port=False)
+    camera.capture_sequence(outputs, 'jpeg', use_video_port=True)
     finish = time.time()
     # How fast were we?
     print('Captured ' + str(numPhotos) + ' images at %.2ffps' % (numPhotos / (finish - start)))
