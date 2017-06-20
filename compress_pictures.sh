@@ -4,6 +4,9 @@
 
 #!/bin/bash
 
+# this line stops the program reading it as literally *.jpg
+shopt -s nullglob
+
 while true;
 do
     sleep 1
