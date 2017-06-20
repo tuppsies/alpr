@@ -14,7 +14,7 @@ with picamera.PiCamera() as camera:
     # begin image compressor and transfer program
     #os.system("./compress_pictures.sh &")
 
-
+    print("Setting up camera")
     #camera.resolution = (2592, 1944) # works fine for 5 megapixels
     camera.resolution = (3266,2450)
     camera.framerate = 30
@@ -52,6 +52,7 @@ with picamera.PiCamera() as camera:
         for x in range(0, numPhotos -1):
             with open(str(imageCounter) +".jpg", "wb") as f:
                 print("made it here")
+                outputs[x].seek(0)
                 #f.write(outputs[x].getvalue()) # this takes longer than shutil
                 shutil.copyfileobj(outputs[x],f)
                 print("Writing to file " + str(f))
