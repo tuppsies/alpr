@@ -4,3 +4,7 @@ http://picamera.readthedocs.io/en/latest/recipes2.html#rapid-capture-and-process
 Python Threading:
 https://www.tutorialspoint.com/python/python_multithreading.htm
 
+
+
+Mounting Hard Drive Over SSH:
+https://www.digitalocean.com/community/tutorials/how-to-use-sshfs-to-mount-remote-file-systems-over-ssh
