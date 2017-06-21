@@ -2,6 +2,7 @@
 # https://raspberrypi.stackexchange.com/questions/22040/take-images-in-a-short-time-using-the-raspberry-pi-camera-module
 # http://picamera.readthedocs.io/en/release-1.10/api_camera.html
 
+import cProfile
 import shutil
 import os
 import io
