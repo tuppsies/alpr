@@ -10,7 +10,7 @@ import datetime
 from datetime import datetime
 
 primaryLanguageList=['au','auwide']
-secondaryLanguageList=['eu','gb','kr''mx','sg','us']
+secondaryLanguageList=['eu','gb','kr','mx','sg','us']
 
 # setup outputs files
 debug = open(str((sys.argv)[1]) + "/debug.txt", 'w')
@@ -54,6 +54,7 @@ def main():
             finalConfidence = 0;
             finalLanguage = "NO LANGUAGE"
             check_primary_plate((imageDirectory + fileName),fileName)
+            check_secondary_plate((imageDirectory + fileName),fileName)
             if(finalPlate != NOPLATE):
                 print(str(finalPlate) + deli + str(finalLanguage) + deli + str(fileName), file = results)  
             counter += 1
@@ -87,6 +88,29 @@ def check_primary_plate(fileLocation, fileName):
                     finalLanguage = language
                     print("Plate is now " + str(finalPlate) + " with confidence " + str(finalConfidence), file = debug)
 
+
+def check_secondary_plate(fileLocation, fileName):
+
+    global finalConfidence
+    global finalPlate
+    global finalLanguage
+
+    for language in secondaryLanguageList:
+        print("Checking language: " + language, file = debug)
+        alpr = Alpr(language, "/etc/openalpr/openalpr.conf", "/usr/share/openalpr/runtime_data")
+        alpr.set_top_n(6)
+        results = alpr.recognize_file(fileLocation)
+        for plate in results['results']:
+            for candidate in plate['candidates']:
+                currentPlate = candidate['plate']
+                currentConfidence = candidate['confidence']
+                print(str(currentPlate) + "\t" + str(currentConfidence), file = debug) # print each plate and     its confidence level
+ 
+                if currentConfidence > finalConfidence and validPlate(currentPlate):
+                    finalPlate = currentPlate
+                    finalConfidence = currentConfidence
+                    finalLanguage = language
+                    print("Plate is now " + str(finalPlate) + " with confidence " + str(finalConfidence), file = debug)
 
 # check to see if a plate is valid
 def validPlate(plate):

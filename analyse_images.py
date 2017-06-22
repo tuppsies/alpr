@@ -1,5 +1,6 @@
 # This program was written by Joshua Cahill to recognise license plate numbers
 # First argument is the location of the directory containing the files WITHOUT a '/' on the end
+# SECOND ARGUMENT IS NO LONGER REQUIRED
 # Second argument is a character either 'v' or 'p' determing if this was from a photo or a video, and this just determines the location of the debugging files
 
 from openalpr import Alpr
@@ -15,15 +16,21 @@ global languageList
 global invalidPlates
 languageListSuccess= [0] * 12
 invalidPlates= ['POLICE', 'P0LICE']
-languageList= ['au', 'br', 'fr', 'kr2', 'mx', 'us', 'auwide', 'eu', 'gb', 'kr', 'sg', 'vn2']
+# LANGUAGE LIST NEEDS TO BE UPDATED BASED ON CONFIG FILES AVAILABLE
+#languageList= ['au', 'br', 'fr', 'kr2', 'mx', 'us', 'auwide', 'eu', 'gb', 'kr', 'sg', 'vn2']
+languageList=['au', 'auwide', 'eu','gb','kr','mx','sg','us']
 
 # change the debug files depending on whether we are using video or photo analyser
-if(str((sys.argv)[2]) == "v"):
-    debug = open('/home/joshua/repos/alpr/debug/debug.txt', 'w')
-    results = open('/home/joshua/repos/alpr/debug/results.txt', 'w')
-elif(str((sys.argv)[2]) == "p"):
-    debug = open('/home/joshua/repos/alpr/debug/debug.txt', 'w')
-    results = open('/home/joshua/repos/alpr/debug/results.txt', 'w')
+#if(str((sys.argv)[2]) == "v"):
+#    debug = open('/home/joshua/repos/alpr/debug/debug.txt', 'w')
+#    results = open('/home/joshua/repos/alpr/debug/results.txt', 'w')
+#elif(str((sys.argv)[2]) == "p"):
+#    debug = open('/home/joshua/repos/alpr/debug/debug.txt', 'w')
+#    results = open('/home/joshua/repos/alpr/debug/results.txt', 'w')
+
+# store the debug file in the same folder as the images we are sampling
+debug = open(str((sys.argv)[1]) + "/debug.txt", 'w')
+results = open(str((sys.argv)[1]) + "/results.txt", 'w')
 
 # print the date information to the files
 date = str(time.strftime("%Y-%m-%d"))
@@ -63,7 +70,7 @@ def get_oz_plate(imageLocation, fileName):
 
     for language in "au", "auwide":
         print("Checking language: " + language, file = debug)
-        alpr = Alpr(language, "/etc/openalpr/openalpr.conf", "/usr/local/share/openalpr/runtime_data")
+        alpr = Alpr(language, "/etc/openalpr/openalpr.conf", "/usr/share/openalpr/runtime_data")
         alpr.set_top_n(6)
         results = alpr.recognize_file(imageLocation)
         for plate in results['results']:
@@ -88,6 +95,7 @@ def get_oz_plate(imageLocation, fileName):
 
 def get_world_plate(imageLocation, fileName):
 
+    print("Made it here")
     finalPlate = "NO PLATE FOUND"
     finalPlateConfidence = 0
     languageCounter = 0
@@ -98,7 +106,7 @@ def get_world_plate(imageLocation, fileName):
            continue
 
         print("Checking language: " + str(language), file = debug)      
-        alpr = Alpr(language, "/etc/openalpr/openalpr.conf", "/usr/local/share/openalpr/runtime_data")
+        alpr = Alpr(language, "/etc/openalpr/openalpr.conf", "/usr/share/openalpr/runtime_data")
         alpr.set_top_n(6)    
         results = alpr.recognize_file(imageLocation)
 
