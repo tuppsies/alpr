@@ -13,8 +13,8 @@ primaryLanguageList=['au','auwide']
 secondaryLanguageList=['eu','gb','kr','mx','sg','us']
 
 # setup outputs files
-debug = open(str((sys.argv)[1]) + "/debug.txt", 'w')
-results = open(str((sys.argv)[1]) + "/results.txt", 'w')
+debug = open(str((sys.argv)[1]) + "/debug.txt", 'a')
+results = open(str((sys.argv)[1]) + "/results.txt", 'a')
 
 # print date information to the files
 date = str(time.strftime("%Y-%m-%d"))
@@ -43,7 +43,7 @@ def main():
     deli = " " # delimter for printing to files
 
     numFiles = calculate_num_files(imageDirectory)
-    print("Number of files is: " + str(numFiles), file = debug)
+    #print("Number of files is: " + str(numFiles), file = debug)
 
     percentageComplete = 0
 
@@ -58,7 +58,8 @@ def main():
             if(finalPlate != NOPLATE):
                 print(str(finalPlate) + deli + str(finalLanguage) + deli + str(fileName), file = results)  
             counter += 1
-            percentageComplete = round(counter/numFiles*100, 2)
+            if numFiles > 0:
+                percentageComplete = round(counter/numFiles*100, 2)
             print("Completed: " + str(counter) + '/' + str(numFiles) + "   " + str(percentageComplete) + "%", end = '\r')
             
 
@@ -128,4 +129,5 @@ def calculate_num_files(directory):
     return counter
 
 
-main()
+while(True):
+    main()
