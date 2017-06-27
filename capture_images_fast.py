@@ -2,13 +2,14 @@
 # https://raspberrypi.stackexchange.com/questions/22040/take-images-in-a-short-time-using-the-raspberry-pi-camera-module
 # http://picamera.readthedocs.io/en/release-1.10/api_camera.html
 
+import sys
 import cProfile
 import shutil
 import os
 import io
 import time
 import picamera
-import paramiko
+#import paramiko
 from ffmpy import FFmpeg
 from time import strftime
 
@@ -29,7 +30,7 @@ with picamera.PiCamera() as camera:
     totalPhotos = 0
     cameraStart = time.time()
 
-    imageCounter = 0 # used to create the image names
+    imageCounter = 21425 # used to create the image names
     while(True):
         
         outputs = [io.BytesIO() for i in range(numPhotos)]
@@ -66,13 +67,14 @@ with picamera.PiCamera() as camera:
         for x in range(0, numPhotos):
 
             with open(str(imageCounter) +".jpg", "wb") as f:
-                #print("made it here")
                 outputs[x].seek(0)
-                #f.write(outputs[x].getvalue()) # this takes longer than shutil
-                shutil.copyfileobj(outputs[x],f)
-                #ff = FFmpeg(inputs={str(imageCounter)+".jpg":None},outputs={"result_"+str(imageCounter)+".jpg":'-r 1'})
-                #ff.run()
-                print("Writing to file " + str(f))
+                try:
+                    shutil.copyfileobj(outputs[x],f)
+                    print("Writing to file " + str(f))
+                except OSError:
+                    print("System is full of storage! Terminating program...")
+                    sys.exit()
+
             imageCounter += 1
         print("In processing time")
         processingEnd = time.time()
