@@ -10,6 +10,8 @@ import time
 import picamera
 import paramiko
 from ffmpy import FFmpeg
+from time import strftime
+
 
 with picamera.PiCamera() as camera:
 
@@ -23,27 +25,40 @@ with picamera.PiCamera() as camera:
     camera.framerate = 30
     time.sleep(2)
 
+    cameraCapture = open("cameraCapture.txt", "w")
+    totalPhotos = 0
+    cameraStart = time.time()
 
     imageCounter = 0 # used to create the image names
     while(True):
-        start = time.time()
         
         outputs = [io.BytesIO() for i in range(numPhotos)]
+        
         # using the video port below brings out worse quality
         print("Beginning capture")
+        
+        startTimeString = strftime("%Y-%m-%d %H:%M:%S")        
+        start = time.time()
         camera.capture_sequence(outputs, 'jpeg', use_video_port=True)
+        endTimeString = strftime("%Y-%m-%d %H:%M:%S")
         finish = time.time()
+
+        timeInterval = (finish-start)/10
+        print("time interval is: " + str((finish-start)/10))
+        photoTimes = []
+        for i in range(1, numPhotos):
+            photoTimes.append(start + (i * timeInterval))
+        # print the array
+        for i in range(1, numPhotos):
+            print("Time for photo " + str(i) + " was " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(photoTimes[i-1])))
+
         # How fast were we?
         print('Captured ' + str(numPhotos) + ' images at %.2ffps' % (numPhotos / (finish - start)))
         print('Capture time was: ' + str(finish-start))
 
-        # create SSH connection
-        #ssh = paramiko.SSHClient()
-        #ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        #ssh.connect('192.168.43.132', username='joshua')
+        totalPhotos += numPhotos
 
 
-        # then send the data over ssh to main computer
         # PROCESSING TIME IS HUGE IF IT HAS TO REWRITE THE FILES - maybe?
         fileLocation = "/media/laptop/home/joshua/Desktop/Raspberry_Pi_Images/"
         print("Processing images from buffer")
@@ -59,6 +74,10 @@ with picamera.PiCamera() as camera:
                 #ff.run()
                 print("Writing to file " + str(f))
             imageCounter += 1
-
+        print("In processing time")
         processingEnd = time.time()
         print("Processing time was " + str(processingEnd - processingStart))
+
+        cameraEnd = time.time()
+        cameraTimeSoFar = cameraEnd - cameraStart
+        #print("capture time " + str(cameraTimeSoFar/totalPhotos))
