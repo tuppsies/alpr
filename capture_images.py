@@ -9,8 +9,7 @@ import os
 import io
 import time
 import picamera
-#import paramiko
-from ffmpy import FFmpeg
+#from ffmpy import FFmpeg # not necessary anymore
 from time import strftime
 
 
@@ -26,11 +25,10 @@ with picamera.PiCamera() as camera:
     camera.framerate = 30
     time.sleep(2)
 
-    cameraCapture = open("cameraCapture.txt", "w")
     totalPhotos = 0
     cameraStart = time.time()
 
-    imageCounter = 21425 # used to create the image names
+    imageCounter = 0 # used to create the image names
     while(True):
         
         outputs = [io.BytesIO() for i in range(numPhotos)]
