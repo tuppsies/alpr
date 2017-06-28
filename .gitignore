@@ -2,3 +2,5 @@ tmp/
 img/
 *.jpg
 *.py.swp
+.h264
+.mp4
