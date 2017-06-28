@@ -8,3 +8,12 @@ https://www.tutorialspoint.com/python/python_multithreading.htm
 
 Mounting Hard Drive Over SSH:
 https://www.digitalocean.com/community/tutorials/how-to-use-sshfs-to-mount-remote-file-systems-over-ssh
+
+To Convert .h264 to .mp4 video:
+http://www.raspberrypi-spy.co.uk/2013/05/capturing-hd-video-with-the-pi-camera-module/
+MP4Box -fps 30 -add result.h264 result.mp4
+
+
+OpenCV and Raspipi Camera:
+http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/
+
