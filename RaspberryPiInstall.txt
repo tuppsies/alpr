@@ -1,0 +1,153 @@
+Hey everyone
+I got a new Pi for xmas (well, it was a drone that magically turned into a PI) 
+I started playing with openALPR installs and noticed the tutorials were a bit out of date and whatever,
+so I went through it and beat it up a bit and came up with a non-optimized installation that uses current versions of packages and seems to work.
+
+This can be obviously improved upon, but I hope it makes it a little easier for noobs like me who are just looking for a recently tested tutorial that requires a minimum of googling around.
+
+a copy of this is posted as a gist here:
+https://gist.github.com/amstanley/9da7febc9a3e3c2228ee
+
+the core steps are based on https://barclaysapps.wordpress.com/2014/07/06/openalpr-install-for-rpi-and-udoo-and-tre-and-yun/ and updated for new packages.
+This is not optimized for space or whatever, but does work.
+
+how to read:
+
+this is a heading, as denoted by the:
+on a line where you see some text -> some more text
+this is the text in the original tutorial -> this is what you should type instead
+note: this is a note: don't type this.
+
+installed and tested on a raspberry pi 2 model B 1GB using raspbian installed via noobs on a 32 GB memory card.
+note that an 8GB card will fill before this tutorial ends, so you will need a card bigger than that.
+Not tested on a 16GB card so no idea if that will work or not.
+
+installation steps: 
+
+Install Dependencies:
+sudo apt-get install autoconf automake libtool
+sudo apt-get install libpng12-dev
+sudo apt-get install libjpeg62-dev -> sudo apt-get install libjpeg62-turbo-dev
+sudo apt-get install libtiff4-dev -> sudo apt-get install libtiff5-dev
+sudo apt-get install zlib1g-dev
+sudo apt-get install git-core
+sudo apt-get install cmake
+sudo apt-get install liblog4cplus-dev libcurl3-dev uuid-dev -> sudo apt-get install libcurl4-openssl-dev liblog4cplus-1.0-4 liblog4cplus-dev uuid-dev
+
+Clone openalpr:
+cd /home/ubuntu  ( or /home/pi ) 
+git clone https://github.com/openalpr/openalpr.git
+
+Create a directory and download libraries:
+cd openalpr
+mkdir libraries
+cd libraries
+
+wget https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.02.tar.gz ->
+using browser, nav to https://github.com/tesseract-ocr/tesseract and 'download zip' then
+mv /home/pi/Downloads/tesseract-master.zip .
+
+wget https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.eng.tar.gz ->
+using browser navigate to https://github.com/tesseract-ocr/tessdata and 'download zip' then
+mv /home/pi/Downloads/tessdata-master.zip .
+
+wget http://www.leptonica.org/source/leptonica-1.70.tar.gz -> wget http://www.leptonica.org/source/leptonica-1.71.tar.gz
+
+don't do this:
+wget http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/2.4.8/opencv-2.4.8.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fopencvlibrary%2Ffiles%2Fopencv-unix%2F2.4.8%2Fopencv-2.4.8.zip%2Fdownload&ts=1392199888&use_mirror=skylink
+mv opencv-2.4.8.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fopencvlibrary%2Ffiles%2Fopencv-unix%2F2.4.8%2Fopencv-2.4.8.zip%2Fdownload opencv-2.4.8.zip
+
+instead do this:
+wget http://sourceforge.net/projects/opencvlibrary/files/opencv-unix/2.4.11/opencv-2.4.11.zip
+
+extract the packages:
+tar -zxvf tesseract-ocr-3.02.02.tar.gz -> unzip tesseract-master.zip
+tar -zxvf leptonica-1.70.tar.gz -> tar -zxvf leptonica-1.71.tar.gz
+unzip opencv-2.4.8.zip -> unzip opencv-2.4.11.zip
+
+compile leptonica:
+cd leptonica-1.70 -> cd leptonica-1.71
+./configure
+make
+make install -> sudo make install
+
+note generates following message:
+Libraries have been installed in:
+   /usr/local/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the `-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the `LD_RUN_PATH' environment variable
+     during linking
+   - use the `-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+
+compile tesseract:
+cd ../tesseract-ocr -> cd ../tesseract-master
+sudo apt-get install autoconf-archive ###This was an edit by me
+./autogen.sh
+./configure
+make
+sudo make install
+sudo ldconfig
+export TESSDATA_PREFIX=/home/pi/openalpr/libraries/tesseract-ocr/tessdata -> 
+export TESSDATA_PREFIX=/home/pi/openalpr/libraries/tessdata-master
+
+Note: according to https://groups.google.com/forum/#!searchin/openalpr/raspberry$20pi/openalpr/m9bv54833nk/47eu4JyHsTUJ
+after sudo ldconfig you should 'make install LANGS="eng"' to set language preference. Not sure how this makes sense but may try it if I run into trouble. (update: I did not)
+
+
+extract the tesseract language data:
+cd ..
+tar -zxvf tesseract-ocr-3.02.eng.tar.gz -> unzip tessdata-master.zip
+
+compile opencv:
+cd opencv-2.4.8 -> cd opencv-2.4.11
+mkdir release
+cd release
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+make
+sudo make install
+
+update the cmake lists for openALPR:
+cd ../../../src
+
+nano CMakeLists.txt
+Change line 22 and 23 to:
+SET(OpenCV_DIR "/usr/local/lib")
+SET(Tesseract_DIR "/home/pi/openalpr/libraries/tesseract-ocr")
+-> none of this seems required, so skip
+
+Compile openALPR:
+cmake ./
+make
+sudo make install
+sudo cp -r /usr/local/lib/* /lib 
+note: seems like this last step is just a path issue... surely better way to do this)
+
+test the library (from https://github.com/openalpr/openalpr/wiki/Compilation-instructions-(Ubuntu-Linux)):
+wget http://plates.openalpr.com/ea7the.jpg
+alpr -c us ea7the.jpg
+
+result: 
+plate0: 10 results
+    - EA7THE	 confidence: 92.4795
+    - EA7TBE	 confidence: 84.0421
+    - EA7TRE	 confidence: 83.1932
+    - EA7TE	 confidence: 82.0527
+    - EA7T8E	 confidence: 81.7845
+    - EA7TME	 confidence: 80.8062
+    - EA7THB	 confidence: 76.6468
+    - EA7TH6	 confidence: 76.6153
+    - EA7TH	 confidence: 75.2232
+    - EA7TBB	 confidence: 68.2095
+
+wget http://plates.openalpr.com/h786poj.jpg
+alpr -c eu h786poj.jpg
